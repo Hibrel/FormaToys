@@ -1,0 +1,12 @@
+* text=auto eol=lf
+
+*.png binary
+*.ico binary
+*.jpg binary
+*.exe binary
+*.dll binary
+*.pri binary
+
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.slnx text eol=crlf

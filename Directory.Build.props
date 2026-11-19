@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Version>0.3.0</Version>
+    <Company>FormaToys</Company>
+    <Product>FormaToys</Product>
+    <Copyright>Copyright (C) 2026 FormaToys</Copyright>
+    <NeutralLanguage>zh-Hans</NeutralLanguage>
+  </PropertyGroup>
+</Project>

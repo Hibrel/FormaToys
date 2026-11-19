@@ -1,0 +1,12 @@
+bin/
+obj/
+.vs/
+.cache/
+*.user
+*.suo
+TestResults/
+artifacts/
+
+# 内嵌的 ffmpeg 二进制不入库（见 docs/BUILD.md 的一次性准备）
+assets/ffmpeg/*.exe
+assets/ffmpeg/LICENSE.txt

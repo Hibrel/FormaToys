@@ -1,0 +1,230 @@
+<Page
+    x:Class="FormaToys.App.Views.ConvertPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:FormaToys.App.Controls"
+    xmlns:vm="using:FormaToys.App.ViewModels"
+    Background="Transparent"
+    Loaded="OnPageLoaded">
+
+    <Grid
+        Padding="24,24,24,16"
+        AllowDrop="True"
+        DragOver="OnPageDragOver"
+        Drop="OnPageDrop"
+        RowSpacing="16">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            Grid.Row="0"
+            Style="{ThemeResource TitleTextBlockStyle}"
+            Text="转换" />
+
+        <!--  工具条  -->
+        <Border
+            Grid.Row="1"
+            Padding="12,8"
+            Style="{StaticResource CardBorderStyle}">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <DropDownButton
+                    Grid.Column="0"
+                    VerticalAlignment="Center"
+                    AutomationProperties.Name="批量设置格式"
+                    Content="批量设置格式">
+                    <DropDownButton.Flyout>
+                        <MenuFlyout x:Name="BatchFormatMenu" Placement="Bottom" />
+                    </DropDownButton.Flyout>
+                </DropDownButton>
+
+                <StackPanel
+                    Grid.Column="2"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <Button
+                        AutomationProperties.Name="取消转换"
+                        Click="OnCancelClick"
+                        Content="取消"
+                        Visibility="{x:Bind Vm.BusyVisibility, Mode=OneWay}" />
+                    <Button
+                        MinWidth="150"
+                        AutomationProperties.Name="开始转换"
+                        Click="OnStartClick"
+                        IsEnabled="{x:Bind Vm.CanStart, Mode=OneWay}"
+                        Style="{StaticResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="13" Glyph="&#xE768;" />
+                            <TextBlock Text="{x:Bind Vm.StartButtonText, Mode=OneWay}" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!--  总进度  -->
+        <Border
+            Grid.Row="2"
+            Padding="14,10"
+            Style="{StaticResource CardBorderStyle}"
+            Visibility="{x:Bind Vm.BusyVisibility, Mode=OneWay}">
+            <Grid ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="6">
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{ThemeResource CaptionTextBlockStyle}"
+                        Text="总进度" />
+                    <ProgressBar
+                        Height="4"
+                        Maximum="100"
+                        Value="{x:Bind Vm.OverallProgress, Mode=OneWay}" />
+                </StackPanel>
+                <TextBlock
+                    Grid.Column="1"
+                    VerticalAlignment="Bottom"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Text="{x:Bind Vm.BusyText, Mode=OneWay}" />
+            </Grid>
+        </Border>
+
+        <!--  三段列表  -->
+        <ScrollViewer
+            Grid.Row="3"
+            Padding="0,0,2,0"
+            VerticalScrollBarVisibility="Auto">
+            <Grid>
+
+                <!--  空态：整块拖放区  -->
+                <Border
+                    MinHeight="300"
+                    Padding="24"
+                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Visibility="{x:Bind Vm.EmptyVisibility, Mode=OneWay}">
+                    <StackPanel
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="10">
+                        <FontIcon
+                            FontSize="26"
+                            Foreground="{ThemeResource AccentTextFillColorPrimaryBrush}"
+                            Glyph="&#xE710;" />
+                        <TextBlock
+                            HorizontalAlignment="Center"
+                            Style="{ThemeResource BodyStrongTextBlockStyle}"
+                            Text="拖放文件到此处" />
+
+                        <Button
+                            HorizontalAlignment="Center"
+                            Margin="0,4,0,0"
+                            Click="OnBrowseFilesClick"
+                            Content="选择文件" />
+                    </StackPanel>
+                </Border>
+
+                <!--  有文件时的三段  -->
+                <StackPanel Spacing="16" Visibility="{x:Bind Vm.ListVisibility, Mode=OneWay}">
+                    <StackPanel Spacing="8" Visibility="{x:Bind Vm.PendingVisibility, Mode=OneWay}">
+                        <TextBlock
+                            Style="{ThemeResource BodyStrongTextBlockStyle}"
+                            Text="{x:Bind Vm.PendingHeader, Mode=OneWay}" />
+                        <ItemsRepeater ItemsSource="{x:Bind Vm.PendingItems, Mode=OneWay}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:FileItemViewModel">
+                                    <controls:FileRow />
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8" Visibility="{x:Bind Vm.RunningVisibility, Mode=OneWay}">
+                        <TextBlock
+                            Style="{ThemeResource BodyStrongTextBlockStyle}"
+                            Text="{x:Bind Vm.RunningHeader, Mode=OneWay}" />
+                        <ItemsRepeater ItemsSource="{x:Bind Vm.RunningItems, Mode=OneWay}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:FileItemViewModel">
+                                    <controls:FileRow />
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8" Visibility="{x:Bind Vm.CompletedVisibility, Mode=OneWay}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock
+                                Style="{ThemeResource BodyStrongTextBlockStyle}"
+                                Text="{x:Bind Vm.CompletedHeader, Mode=OneWay}" />
+                            <StackPanel
+                                Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="4">
+                                <HyperlinkButton
+                                    Padding="8,0"
+                                    Click="OnRequeueCompletedClick"
+                                    Content="全部重新转换"
+                                    FontSize="12" />
+                                <HyperlinkButton
+                                    Padding="8,0"
+                                    Click="OnClearCompletedClick"
+                                    Content="清空已完成"
+                                    FontSize="12" />
+                            </StackPanel>
+                        </Grid>
+                        <ItemsRepeater ItemsSource="{x:Bind Vm.CompletedItems, Mode=OneWay}">
+                            <ItemsRepeater.Layout>
+                                <StackLayout />
+                            </ItemsRepeater.Layout>
+                            <ItemsRepeater.ItemTemplate>
+                                <DataTemplate x:DataType="vm:FileItemViewModel">
+                                    <controls:FileRow />
+                                </DataTemplate>
+                            </ItemsRepeater.ItemTemplate>
+                        </ItemsRepeater>
+                    </StackPanel>
+
+                    <Button
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,4"
+                        Click="OnBrowseFilesClick"
+                        Content="添加文件" />
+                </StackPanel>
+            </Grid>
+        </ScrollViewer>
+
+        <!--  底部汇总 / 提示  -->
+        <TextBlock
+            Grid.Row="4"
+            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+            Style="{ThemeResource CaptionTextBlockStyle}"
+            Text="{x:Bind Vm.SummaryText, Mode=OneWay}" />
+    </Grid>
+</Page>

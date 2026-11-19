@@ -1,0 +1,218 @@
+<UserControl
+    x:Class="FormaToys.App.Controls.FileRow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Border
+        Margin="0,0,0,6"
+        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+        BorderThickness="1"
+        CornerRadius="8">
+        <Grid>
+            <!--  左侧状态色条：待转换无、转换中强调色、失败红、完成绿、已取消琥珀  -->
+            <Border
+                Width="3"
+                HorizontalAlignment="Left"
+                Background="{ThemeResource AccentFillColorDefaultBrush}"
+                CornerRadius="7,0,0,7"
+                Visibility="{Binding RunningStripeVisibility}" />
+            <Border
+                Width="3"
+                HorizontalAlignment="Left"
+                Background="{ThemeResource SystemFillColorCriticalBrush}"
+                CornerRadius="7,0,0,7"
+                Visibility="{Binding FailedStripeVisibility}" />
+            <Border
+                Width="3"
+                HorizontalAlignment="Left"
+                Background="{ThemeResource SystemFillColorSuccessBrush}"
+                CornerRadius="7,0,0,7"
+                Visibility="{Binding DoneStripeVisibility}" />
+            <Border
+                Width="3"
+                HorizontalAlignment="Left"
+                Background="{ThemeResource SystemFillColorCautionBrush}"
+                CornerRadius="7,0,0,7"
+                Visibility="{Binding CanceledStripeVisibility}" />
+
+            <Grid Padding="12,10,10,10" ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="124" />
+                    <ColumnDefinition Width="180" />
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Border
+                    Grid.Column="0"
+                    Width="34"
+                    Height="34"
+                    VerticalAlignment="Center"
+                    Background="{ThemeResource SubtleFillColorSecondaryBrush}"
+                    CornerRadius="7">
+                    <FontIcon
+                        FontSize="14"
+                        Glyph="{Binding KindGlyph}" />
+                </Border>
+
+                <StackPanel
+                    Grid.Column="1"
+                    VerticalAlignment="Center"
+                    Spacing="2">
+                    <TextBlock
+                        MaxLines="1"
+                        Text="{Binding FileName}"
+                        TextTrimming="CharacterEllipsis" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        MaxLines="1"
+                        Style="{ThemeResource CaptionTextBlockStyle}"
+                        Text="{Binding MetaText}"
+                        TextTrimming="CharacterEllipsis"
+                        ToolTipService.ToolTip="{Binding Error}" />
+                </StackPanel>
+
+                <StackPanel
+                    Grid.Column="3"
+                    VerticalAlignment="Center"
+                    Spacing="4">
+                    <ProgressBar
+                        Height="4"
+                        Maximum="100"
+                        IsIndeterminate="{Binding IsIndeterminate}"
+                        Value="{Binding Progress}"
+                        Visibility="{Binding ProgressVisibility}" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{ThemeResource CaptionTextBlockStyle}"
+                        Text="{Binding ProgressText}"
+                        Visibility="{Binding ProgressVisibility}" />
+                </StackPanel>
+
+                <TextBlock
+                    Grid.Column="4"
+                    VerticalAlignment="Center"
+                    HorizontalTextAlignment="Right"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Text="{Binding StatusText}" />
+
+                <!--  目标格式：可编辑时为下拉，转换中/完成后为只读文本，整体右对齐  -->
+                <ComboBox
+                    Grid.Column="2"
+                    Width="116"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    AutomationProperties.Name="目标格式"
+                    DisplayMemberPath="DisplayName"
+                    ItemsSource="{Binding Formats}"
+                    SelectedItem="{Binding SelectedFormat, Mode=TwoWay}"
+                    Visibility="{Binding FormatPickerVisibility}" />
+
+                <TextBlock
+                    Grid.Column="2"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Text="{Binding TargetText}"
+                    TextTrimming="CharacterEllipsis"
+                    Visibility="{Binding RunningFormatVisibility}" />
+
+                <TextBlock
+                    Grid.Column="2"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Style="{ThemeResource CaptionTextBlockStyle}"
+                    Text="{Binding TargetText}"
+                    TextTrimming="CharacterEllipsis"
+                    Visibility="{Binding DoneTextVisibility}" />
+
+                <StackPanel
+                    Grid.Column="5"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="2">
+                    <Button
+                        Width="30"
+                        Height="30"
+                        Padding="0"
+                        AutomationProperties.Name="打开输出文件"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="OnOpenClick"
+                        ToolTipService.ToolTip="打开"
+                        Visibility="{Binding OpenVisibility}">
+                        <FontIcon FontSize="13" Glyph="&#xE8E5;" />
+                    </Button>
+                    <Button
+                        Width="30"
+                        Height="30"
+                        Padding="0"
+                        AutomationProperties.Name="在文件资源管理器中显示"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Click="OnRevealClick"
+                        ToolTipService.ToolTip="在文件资源管理器中显示"
+                        Visibility="{Binding RevealVisibility}">
+                        <FontIcon FontSize="13" Glyph="&#xE838;" />
+                    </Button>
+                    <Button
+                        Height="30"
+                        Padding="10,0"
+                        AutomationProperties.Name="取消此任务"
+                        Click="OnCancelClick"
+                        Content="取消"
+                        FontSize="12"
+                        Visibility="{Binding CancelVisibility}" />
+                    <Button
+                        Width="30"
+                        Height="30"
+                        Padding="0"
+                        AutomationProperties.Name="更多操作"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        ToolTipService.ToolTip="更多">
+                        <FontIcon FontSize="13" Glyph="&#xE712;" />
+                        <Button.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem
+                                    Click="OnPickFolderClick"
+                                    Text="更改输出文件夹…">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE8DA;" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem
+                                    Click="OnResetFolderClick"
+                                    Text="恢复全局输出位置">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE8E6;" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem
+                                    Click="OnRequeueClick"
+                                    Text="重新转换">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE72C;" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem
+                                    Click="OnRemoveClick"
+                                    Text="从列表移除">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE711;" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </Button.Flyout>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

@@ -1,0 +1,155 @@
+<Page
+    x:Class="FormaToys.App.Views.SettingsPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="Transparent">
+
+    <ScrollViewer>
+        <Grid Padding="24,24,24,24" RowSpacing="12">
+
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock
+                Grid.Row="0"
+                Margin="0"
+                Style="{ThemeResource TitleTextBlockStyle}"
+                Text="设置" />
+
+            <!--  输出位置  -->
+            <Border
+                Grid.Row="1"
+                Style="{StaticResource CardBorderStyle}">
+                <StackPanel Padding="16" Spacing="10">
+                    <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="输出位置" />
+                    <CheckBox
+                        Content="输出到指定文件夹"
+                        IsChecked="{x:Bind Queue.UseCustomFolder, Mode=TwoWay}" />
+                    <Grid ColumnSpacing="8">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox
+                            IsEnabled="{x:Bind Queue.UseCustomFolder, Mode=OneWay}"
+                            PlaceholderText="与源文件同目录"
+                            Text="{x:Bind Queue.CustomFolderText, Mode=TwoWay}" />
+                        <Button
+                            Grid.Column="1"
+                            Click="OnBrowseOutputClick"
+                            Content="浏览"
+                            IsEnabled="{x:Bind Queue.UseCustomFolder, Mode=OneWay}" />
+                    </Grid>
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{ThemeResource CaptionTextBlockStyle}"
+                        Text="默认为源文件所在目录"
+                        TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+
+            <!--  输出质量  -->
+            <Border
+                Grid.Row="2"
+                Style="{StaticResource CardBorderStyle}">
+                <StackPanel Padding="16" Spacing="10">
+                    <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="输出质量" />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="质量档位" />
+                        <ComboBox
+                            Grid.Column="1"
+                            Width="148"
+                            AutomationProperties.Name="质量档位"
+                            SelectedIndex="{x:Bind QualityIndex, Mode=TwoWay}">
+                            <ComboBoxItem Content="文件小" />
+                            <ComboBoxItem Content="均衡" />
+                            <ComboBoxItem Content="高画质" />
+                        </ComboBox>
+                    </Grid>
+
+                </StackPanel>
+            </Border>
+
+            <!--  转换  -->
+            <Border
+                Grid.Row="3"
+                Style="{StaticResource CardBorderStyle}">
+                <StackPanel Padding="16" Spacing="10">
+                    <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="转换" />
+                    <Grid ColumnSpacing="12">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock VerticalAlignment="Center" Text="同时转换的任务数" />
+                        <ComboBox
+                            Grid.Column="1"
+                            Width="96"
+                            AutomationProperties.Name="同时转换的任务数"
+                            SelectedIndex="{x:Bind ConcurrencyIndex, Mode=TwoWay}">
+                            <ComboBoxItem Content="1" />
+                            <ComboBoxItem Content="2" />
+                            <ComboBoxItem Content="3" />
+                            <ComboBoxItem Content="4" />
+                        </ComboBox>
+                    </Grid>
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{ThemeResource CaptionTextBlockStyle}"
+                        Text="并行转换会占用更多 CPU 与磁盘带宽。"
+                        TextWrapping="Wrap" />
+                    <CheckBox
+                        Content="转换完成后在资源管理器中显示输出文件"
+                        IsChecked="{x:Bind Settings.OpenFolderWhenDone, Mode=TwoWay}" />
+                </StackPanel>
+            </Border>
+
+            <!--  转换引擎  -->
+            <Border
+                Grid.Row="4"
+                Style="{StaticResource CardBorderStyle}">
+                <StackPanel Padding="16" Spacing="8">
+                    <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="转换引擎" />
+                    <TextBlock Text="{x:Bind FfmpegText}" TextWrapping="Wrap" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{ThemeResource CaptionTextBlockStyle}"
+                        Text="{x:Bind EnginePathText}"
+                        TextTrimming="CharacterEllipsis" />
+                    <HyperlinkButton
+                        Padding="0,4,0,0"
+                        Click="OnOpenProgramFolderClick"
+                        Content="打开程序文件夹" />
+                </StackPanel>
+            </Border>
+
+            <!--  配置文件  -->
+            <Border
+                Grid.Row="5"
+                Style="{StaticResource CardBorderStyle}">
+                <StackPanel Padding="16" Spacing="8">
+                    <TextBlock Style="{ThemeResource BodyStrongTextBlockStyle}" Text="配置文件" />
+                    <TextBlock
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{ThemeResource CaptionTextBlockStyle}"
+                        Text="{x:Bind SettingsPathText}"
+                        TextTrimming="CharacterEllipsis" />
+                    <HyperlinkButton
+                        Padding="0,4,0,0"
+                        Click="OnOpenSettingsFolderClick"
+                        Content="打开配置文件夹" />
+                </StackPanel>
+            </Border>
+        </Grid>
+    </ScrollViewer>
+</Page>
