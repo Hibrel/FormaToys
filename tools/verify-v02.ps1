@@ -7,7 +7,7 @@ Add-Type -AssemblyName UIAutomationTypes
 
 $repo = Split-Path -Parent $PSScriptRoot
 $outDir = if ([System.IO.Path]::IsPathRooted($Out)) { $Out } else { Join-Path $repo $Out }
-$exe = Join-Path $repo "src\FormaToys.App\bin\Debug\net8.0-windows10.0.19041.0\win-x64\FormaToys.exe"
+$exe = Join-Path $repo "src\FormaToys.App\bin\Debug\net10.0-windows10.0.19041.0\win-x64\FormaToys.exe"
 $samples = Join-Path $repo ".cache\samples"
 
 function Shot([string]$name) {
