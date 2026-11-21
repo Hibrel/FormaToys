@@ -71,7 +71,10 @@ pwsh -NoProfile -File tools\package-release.ps1     # 输出 artifacts\release
 
 单个文件失败不影响其他任务：该行状态变为“失败”并显示 ffmpeg 的具体原因（悬停查看完整信息），左侧状态条转红。
 
-## 当前功能（v0.3.0）
+## 当前功能（v0.4.0）
+
+- **内嵌 ffmpeg**：ffmpeg / ffprobe 以 Brotli 压缩的嵌入资源随程序集分发，首次运行解压到 `%LOCALAPPDATA%\FormaToys\tools\`，无需另装。
+- **单文件发布**：`FormaToys-<版本>-win-x64.exe` 双击即用；另有便携 zip。
 
 - **导航骨架**：NavigationView（转换 / 设置 / 关于），设置入口位于侧栏。
 - **三段式工作区**：待转换 / 转换中 / 已完成，各段标题带计数，空段自动隐藏；无文件时仅显示拖放区。
@@ -137,24 +140,27 @@ dotnet run --project tools\FormaToys.Smoke\FormaToys.Smoke.csproj -c Release
 
 | 指标 | 实测 |
 | --- | --- |
-| 发布目录 | 466 MB（325 个文件） |
-| 其中 ffmpeg + ffprobe | 各约 165 MB（BtbN GPL 静态构建） |
-| 程序自身（exe + dll + xbf） | 约 4 MB |
-| 冷启动到窗口出现 | 376 ms（v0.2 三次实测中位数） |
-| 空态工作集 / 私有内存 | 133 MB / 92 MB |
+| 便携版目录（`artifacts\dist`） | 235 MB（323 个文件） |
+| 其中 `FormaToys.Core.dll`（含 Brotli 压缩的 ffmpeg + ffprobe） | 98.1 MB（解压后 345 MB） |
+| 单文件启动器 / 便携 zip | 148.8 MB / 148.7 MB |
+| 安装后占用（`%LOCALAPPDATA%\FormaToys`，含解压出的 ffmpeg） | 564 MB |
+| 首次运行（解压应用与 ffmpeg） | 约 10–25 s，仅一次 |
+| 之后冷启动到窗口出现 | 412 / 385 / 404 ms（三次实测） |
+| 空态工作集 / 私有内存 | 145 MB / 100 MB |
 
-后续将改用裁剪过的 ffmpeg 构建（仅保留常用编解码器），将整包压缩到 100 MB 以内。
+后续将改用裁剪过的 ffmpeg 构建（仅保留常用编解码器），把分发体积压到 100 MB 以内。
 
 ## 路线图
 
 - **M1**：单机批量格式转换 + 质量三档 + 进度/取消 + 设置持久化（v0.1）
 - **M2**：PowerToys 式导航骨架、三段队列、每文件独立格式 + 按类型批量设置、16 ms 真实进度、单文件输出覆盖（v0.2）
-- **M3（当前）**：界面精简与文案规范化、质量档位移入设置（v0.3）
-- **M4**：裁剪版 ffmpeg（整包 < 100 MB）、单实例 + 任务栏图标接收文件、剪裁/旋转/去音轨、目标大小模式（两遍编码）、硬件编码（NVENC/QSV/AMF）探测
+- **M3**：界面精简与文案规范化、质量档位移入设置（v0.3）
+- **M4（当前）**：ffmpeg 内嵌进程序集 + 单文件发布物（v0.4）
+- **M5**：裁剪版 ffmpeg（整包 < 100 MB）、单实例 + 任务栏图标接收文件、剪裁/旋转/去音轨、目标大小模式（两遍编码）、硬件编码（NVENC/QSV/AMF）探测
 - **明确不做**：账号与云同步、广告、捆绑安装器、视频剪辑时间线、CD/DVD 抓取
 
 ## 许可证
 
 本项目以 **GNU General Public License v3.0** 发布，全文见 [LICENSE](LICENSE)。内嵌的 ffmpeg 同为 GPL v3 构建，
-通过独立进程调用；分发包含 ffmpeg 二进制的整包时，需同时提供相应源码或获取方式，详见
+以 Brotli 压缩的二进制形式随程序集分发，通过独立进程调用；对应源码与获取方式见
 [docs/THIRD-PARTY-NOTICES.md](docs/THIRD-PARTY-NOTICES.md)。

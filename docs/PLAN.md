@@ -1,4 +1,4 @@
-# FormaToys 方案（0.3 设计稿）
+# FormaToys 方案（0.4 设计稿）
 
 一句话：**拖入文件，为每个文件选择目标格式，开始转换。** 其余一概不做。
 
@@ -87,14 +87,14 @@ FormaToys.Core (net8.0, 无 UI 依赖)
   Media/          MediaProbe（ffprobe→MediaInfo）、FormatCatalog（格式表）、MediaKind
   Conversion/     FfmpegCommandBuilder（参数表）、ConversionEngine（进程 + 16 ms 进度 + 取消）、
                   ConversionProgress、OutputPlanner、ProgressParser
-  Tooling/        ToolPaths（定位 ffmpeg）、StartupCheck（版本/GPL 自检）
+  Tooling/        ToolPaths（5 级查找 ffmpeg）、EmbeddedTools（解压内嵌 ffmpeg）、StartupCheck（版本/GPL 自检）
   Settings/       AppSettings + SettingsStore（%LOCALAPPDATA%\FormaToys\settings.json）
 ```
 
 **为什么拆 Core**：转换逻辑与 UI 完全解耦，可以脱离窗口跑（`tools/FormaToys.Smoke`
 就是这么来的：同一套引擎，命令行把 14 种转换全跑一遍并 ffprobe 校验输出）。
 
-**为什么用进程而不是绑定库**：内嵌官方 GPL 构建的 ffmpeg.exe，升级只需替换两个二进制；
+**为什么用进程而不是绑定库**：内嵌官方 GPL 构建的 ffmpeg.exe（Brotli 压缩后作为嵌入资源随程序集分发），升级只需重跑 `tools\pack-ffmpeg.ps1` 替换两个 `.br`；
 参数、进度、取消都走标准 IO，交叉验证容易。代价是每次调用多几十毫秒启动开销，
 相对一次真实转码可以忽略。
 

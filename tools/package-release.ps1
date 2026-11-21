@@ -36,20 +36,22 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
     $false)
 Write-Host ("便携版：{0}  {1:N1} MB" -f (Split-Path -Leaf $zip), ((Get-Item $zip).Length / 1MB))
 
-# 2) 单文件启动器：把同一份 zip 作为载荷嵌入
+# 2) 单文件启动器：把同一份 zip 作为载荷嵌入，并打成单文件 exe
 $setupProject = Join-Path $root 'tools\FormaToys.Setup\FormaToys.Setup.csproj'
 $assets = Join-Path $root 'tools\FormaToys.Setup\Assets'
 New-Item -ItemType Directory -Force $assets | Out-Null
 Copy-Item $zip (Join-Path $assets 'payload.zip') -Force
 
-dotnet build $setupProject -c Release -nodeReuse:false --nologo | Out-Host
+$setupOut = Join-Path $root 'artifacts\setup-single'
+if (Test-Path $setupOut) { Remove-Item $setupOut -Recurse -Force }
+dotnet publish $setupProject -c Release -r win-x64 `
+    -p:PublishSingleFile=true -p:SelfContained=false -p:IncludeNativeLibrariesForSelfExtract=true `
+    -o $setupOut --nologo | Out-Host
 if ($LASTEXITCODE -ne 0) { throw '启动器构建失败。' }
 
-$setupOut = Join-Path $root 'tools\FormaToys.Setup\bin\Release\net8.0\win-x64'
 $setupExe = Join-Path $release "FormaToys-$version-win-x64.exe"
 Copy-Item (Join-Path $setupOut 'FormaToys-Setup.exe') $setupExe -Force
-Get-ChildItem $setupOut -Filter *.json | Copy-Item -Destination $release -Force
-Write-Host ("启动器：{0}  {1:N1} MB" -f (Split-Path -Leaf $setupExe), ((Get-Item $setupExe).Length / 1MB))
+Write-Host ("单文件版：{0}  {1:N1} MB" -f (Split-Path -Leaf $setupExe), ((Get-Item $setupExe).Length / 1MB))
 
 Remove-Item (Join-Path $assets 'payload.zip') -Force
 
