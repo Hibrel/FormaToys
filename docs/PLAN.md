@@ -7,7 +7,7 @@
 左侧导航栏、右侧卡片、任务按状态分段。
 
 - 平台：Windows 11 独占（Mica、圆角、WinUI 3 控件依赖 Win11 的渲染与 DWM 行为）
-- 技术：C# / .NET 8 / WinUI 3（Windows App SDK 1.8），**零 WebView、零 Electron**
+- 技术：C# / .NET 10（LTS）/ WinUI 3（Windows App SDK 1.8），**零 WebView、零 Electron**
 - 引擎：内嵌 GPL 版 ffmpeg.exe / ffprobe.exe，进程调用，不链接、不封装
 - 体积目标：程序本体约 4 MB，其余是 ffmpeg 二进制（约 330 MB，后续换裁剪构建）
 
@@ -75,7 +75,7 @@
 ## 3. 架构：界面不认识 ffmpeg 命令行
 
 ```
-FormaToys.App  (WinUI 3, net8.0-windows)
+FormaToys.App  (WinUI 3, net10.0-windows)
   MainWindow      自定义标题栏 + NavigationView + Frame 路由（convert/queue/settings/about）
   Views/          ConvertPage、QueuePage、SettingsPage、AboutPage：只做布局与事件
   Controls/       FileRow（一个文件行：图标 / 源信息 / 格式选择器 / 进度 / 状态 / 动作）
@@ -83,7 +83,7 @@ FormaToys.App  (WinUI 3, net8.0-windows)
                   FileItemViewModel（单行状态机：Pending/Running/Completed/Failed/Canceled）
   Services/       AppServices（组合根）、ShellService（explorer 调用）
 ────────────────────────────────────────────────────────────────
-FormaToys.Core (net8.0, 无 UI 依赖)
+FormaToys.Core (net10.0, 无 UI 依赖)
   Media/          MediaProbe（ffprobe→MediaInfo）、FormatCatalog（格式表）、MediaKind
   Conversion/     FfmpegCommandBuilder（参数表）、ConversionEngine（进程 + 16 ms 进度 + 取消）、
                   ConversionProgress、OutputPlanner、ProgressParser

@@ -5,8 +5,8 @@
 | 项 | 版本 | 说明 |
 | --- | --- | --- |
 | Windows | 11（25H2 / build 26200 实测） | WinUI 3 + Mica 需要 Win11 |
-| .NET SDK | 10.0.403 | `global.json` 已锁定；目标框架仍是 net8.0 |
-| .NET 运行时 | Microsoft.WindowsDesktop.App / NETCore 8.0.x | 程序框架依赖部署 |
+| .NET SDK | 10.0.x（≥ 10.0.0） | `global.json` 以 `10.0.0` + `rollForward: latestFeature` 匹配任意 10.0.x；目标框架 net10.0 |
+| .NET 运行时 | Microsoft.WindowsDesktop.App / NETCore 10.0.x | 程序框架依赖部署 |
 | Windows App SDK | 1.8.251106002（NuGet） | `WindowsAppSDKSelfContained=true`，无需单独装运行时 |
 | Visual Studio | **不需要** | 全部命令走 `dotnet` CLI |
 
@@ -60,13 +60,13 @@ LICENSE.txt
 
 ```powershell
 dotnet build FormaToys.slnx -c Debug
-.\src\FormaToys.App\bin\Debug\net8.0-windows10.0.19041.0\win-x64\FormaToys.exe
+.\src\FormaToys.App\bin\Debug\net10.0-windows10.0.19041.0\win-x64\FormaToys.exe
 ```
 
 也可以带文件参数直接开：
 
 ```powershell
-$exe = ".\src\FormaToys.App\bin\Debug\net8.0-windows10.0.19041.0\win-x64\FormaToys.exe"
+$exe = ".\src\FormaToys.App\bin\Debug\net10.0-windows10.0.19041.0\win-x64\FormaToys.exe"
 & $exe .\.cache\samples\sample.mp4 .\.cache\samples\sample.png
 ```
 

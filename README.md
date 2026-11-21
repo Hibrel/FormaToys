@@ -35,7 +35,7 @@ Win11 独占的原生 ffmpeg 图形前端 —— “格式工厂”的现代重�
 从源码构建：
 
 ```powershell
-# 1) 需要 .NET 8 运行时 + Windows App SDK（构建期由 NuGet 提供）
+# 1) 需要 .NET 10 运行时 + Windows App SDK（构建期由 NuGet 提供）
 #    ffmpeg 已作为 Brotli 压缩的嵌入资源随仓库提供（assets\ffmpeg\*.br），
 #    若需更新版本，按 docs\BUILD.md 重新生成。
 
@@ -43,10 +43,10 @@ Win11 独占的原生 ffmpeg 图形前端 —— “格式工厂”的现代重�
 dotnet build FormaToys.slnx -c Debug
 
 # 3) 运行
-.\src\FormaToys.App\bin\Debug\net8.0-windows10.0.19041.0\win-x64\FormaToys.exe
+.\src\FormaToys.App\bin\Debug\net10.0-windows10.0.19041.0\win-x64\FormaToys.exe
 
 # 带文件启动
-$exe = ".\src\FormaToys.App\bin\Debug\net8.0-windows10.0.19041.0\win-x64\FormaToys.exe"
+$exe = ".\src\FormaToys.App\bin\Debug\net10.0-windows10.0.19041.0\win-x64\FormaToys.exe"
 & $exe .\clip.mp4 .\song.mp3 .\pic.png
 ```
 
@@ -90,7 +90,7 @@ pwsh -NoProfile -File tools\package-release.ps1     # 输出 artifacts\release
 ```
 FormaToys/
 ├─ FormaToys.slnx                 # SDK 10 的解决方案格式
-├─ global.json                    # 锁定 .NET SDK 10.0.403
+├─ global.json                    # 要求 .NET SDK 10.0.x（rollForward: latestFeature）
 ├─ Directory.Build.props          # 公共属性（LangVersion 12 / 版本号）
 ├─ LICENSE                         # GPL-3.0 全文（程序本体与内嵌 ffmpeg 同一许可证）
 ├─ assets/ffmpeg/                  # 内嵌 ffmpeg 资源（*.br 入库，原始 .exe 不入库）
