@@ -10,32 +10,51 @@
 | Windows App SDK | 1.8.251106002（NuGet） | `WindowsAppSDKSelfContained=true`，无需单独装运行时 |
 | Visual Studio | **不需要** | 全部命令走 `dotnet` CLI |
 
-## 一次性准备 ffmpeg
+## ffmpeg 资源（已入库）
 
-`assets/ffmpeg/` 需要 `ffmpeg.exe`、`ffprobe.exe`、`LICENSE.txt`（不放进版本库，见 `.gitignore`）：
+仓库里的 `assets/ffmpeg/` 只保存 **Brotli 压缩后的嵌入资源**，不保存 165 MB 的原始 exe：
+
+| 文件 | 大小 | 说明 |
+| --- | --- | --- |
+| `ffmpeg.exe.br` | 约 49 MB | GPL 构建，编译期以 `EmbeddedResource` 塞进 `FormaToys.Core.dll` |
+| `ffprobe.exe.br` | 约 34 MB | 同上 |
+| `ffmpeg-version.txt` | < 1 KB | 版本串，运行期用于缓存目录与设置页展示 |
+| `LICENSE.txt` | 34 KB | ffmpeg 的 GPL v3 全文 |
+
+运行期 `EmbeddedTools.EnsureExtracted()` 首次使用时把两者解压到
+`%LOCALAPPDATA%\FormaToys\tools\<版本>-<资源长度>\`，带 `.complete` 标记后不再重复解压。
+
+更新 ffmpeg 版本：
 
 ```powershell
-# 0.1 使用的构建：BtbN GPL 快照
+# 1) 下载 BtbN 的 GPL 构建并替换原始 exe
 $url = "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
-Invoke-WebRequest $url -OutFile $env:TEMP\ffmpeg.zip
+curl.exe -L -o $env:TEMP\ffmpeg.zip $url
 Expand-Archive $env:TEMP\ffmpeg.zip -DestinationPath $env:TEMP\ffmpeg-x -Force
 $src = Get-ChildItem $env:TEMP\ffmpeg-x -Directory | Select-Object -First 1
-New-Item -ItemType Directory -Force assets\ffmpeg | Out-Null
-Copy-Item "$($src.FullName)\bin\ffmpeg.exe","$($src.FullName)\bin\ffprobe.exe" assets\ffmpeg\
-Copy-Item "$($src.FullName)\LICENSE.txt" assets\ffmpeg\
+Copy-Item "$($src.FullName)\bin\ffmpeg.exe","$($src.FullName)\bin\ffprobe.exe" assets\ffmpeg\ -Force
+Copy-Item "$($src.FullName)\LICENSE.txt" assets\ffmpeg\ -Force
 & assets\ffmpeg\ffmpeg.exe -version | Select-Object -First 1
+
+# 2) 重新压成嵌入资源（Brotli SmallestSize，约 10 分钟）
+pwsh -NoProfile -File tools\pack-ffmpeg.ps1 -Force
 ```
 
-`FormaToys.App.csproj` 把这三个文件以 `Link="ffmpeg\*"` 复制到输出目录，所以运行时布局是：
+`assets/ffmpeg/*.exe` 被 `.gitignore` 排除（单文件 165 MB 超过 GitHub 的 100 MB 限制），
+入库的只有 `.br`。
+
+运行时布局（发布目录里不再有 `ffmpeg\` 子目录）：
 
 ```
 FormaToys.exe
 FormaToys.dll
-ffmpeg\ffmpeg.exe
-ffmpeg\ffprobe.exe
-ffmpeg\LICENSE.txt
+FormaToys.Core.dll     # 内含 Brotli 压缩的 ffmpeg / ffprobe
+FormaToys.pri
+LICENSE.txt
 …（Windows App SDK 自包含文件）
 ```
+
+若把 `ffmpeg\ffmpeg.exe` 手工放到程序目录，仍会优先使用它（见 `ToolPaths` 的 5 级查找顺序）。
 
 ## 构建 / 运行
 
@@ -109,4 +128,9 @@ UIA 实用细节：`MenuFlyout` / `ComboBox` 的弹出层是独立 HWND，从主
    所以 `capture.ps1` 改用 `PrintWindow(..., 2)`，并用“取中心像素是否全黑”来判定要不要退回屏幕拷贝。
 8. **16 ms 进度不能在 stdout 回调里直接上报**：`OutputDataReceived` 频率不可控，
    改成回调只写 `latestTicks`、由 `Timer` 每 16 ms 采样，否则 UI 线程会被打满。
+9. **嵌入资源名要用 `LogicalName` 钉死**：`..\..\assets\ffmpeg\ffmpeg.exe.br` 默认会变成
+   `FormaToys.Core...ffmpeg.exe.br` 这种带路径的名字；`EmbeddedTools` 按 `FormaToys.Tools.ffmpeg.exe.br`
+   查找，所以 csproj 里必须写 `LogicalName`。
+10. **GitHub 不收 > 100 MB 的单文件**：`ffmpeg.exe` 165 MB 无法直接入库，仓库里存的是
+    Brotli 压缩后的 `.br`（49 MB / 34 MB），运行期解压到 `%LOCALAPPDATA%`。
 

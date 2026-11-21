@@ -4,6 +4,7 @@
     <Project Path="src/FormaToys.Core/FormaToys.Core.csproj" />
   </Folder>
   <Folder Name="/tools/">
+    <Project Path="tools/FormaToys.Setup/FormaToys.Setup.csproj" />
     <Project Path="tools/FormaToys.Smoke/FormaToys.Smoke.csproj" />
   </Folder>
 </Solution>

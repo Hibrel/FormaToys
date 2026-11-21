@@ -29,10 +29,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\assets\ffmpeg\ffmpeg.exe" Link="ffmpeg\ffmpeg.exe" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\assets\ffmpeg\ffprobe.exe" Link="ffmpeg\ffprobe.exe" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\assets\ffmpeg\LICENSE.txt" Link="ffmpeg\LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="..\..\LICENSE.txt" Link="LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
+    <!--  ffmpeg 本体以嵌入资源形式随 FormaToys.Core.dll 分发，这里只带许可证全文。  -->
+    <Content Include="..\..\LICENSE" Link="LICENSE.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <!--

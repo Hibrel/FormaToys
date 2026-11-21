@@ -6,4 +6,15 @@
     <AssemblyName>FormaToys.Core</AssemblyName>
   </PropertyGroup>
 
+  <!--
+    ffmpeg / ffprobe 以 Brotli 压缩的嵌入资源随程序集分发（GPL v3，允许内嵌）。
+    资源由 tools\pack-ffmpeg.ps1 生成；本机没有生成时（例如刚 clone 还没准备 ffmpeg）
+    就不嵌入，运行期回退到 ffmpeg\ 目录、环境变量或 PATH。
+  -->
+  <ItemGroup Condition="Exists('..\..\assets\ffmpeg\ffmpeg.exe.br') And Exists('..\..\assets\ffmpeg\ffprobe.exe.br')">
+    <EmbeddedResource Include="..\..\assets\ffmpeg\ffmpeg.exe.br" LogicalName="FormaToys.Tools.ffmpeg.exe.br" />
+    <EmbeddedResource Include="..\..\assets\ffmpeg\ffprobe.exe.br" LogicalName="FormaToys.Tools.ffprobe.exe.br" />
+    <EmbeddedResource Include="..\..\assets\ffmpeg\ffmpeg-version.txt" LogicalName="FormaToys.Tools.ffmpeg-version.txt" Condition="Exists('..\..\assets\ffmpeg\ffmpeg-version.txt')" />
+  </ItemGroup>
+
 </Project>

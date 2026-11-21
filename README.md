@@ -27,9 +27,17 @@ Win11 独占的原生 ffmpeg 图形前端 —— “格式工厂”的现代重�
 
 ## 快速开始
 
+下载：
+
+- `FormaToys-<版本>-win-x64.exe` —— 单文件启动器，双击即用（首次运行解压到 `%LOCALAPPDATA%\FormaToys\app\`）。
+- `FormaToys-<版本>-win-x64.zip` —— 便携版，解压后直接运行 `FormaToys.exe`。
+
+从源码构建：
+
 ```powershell
-# 1) 准备 ffmpeg（一次性，详见 docs\BUILD.md）
-#    将 ffmpeg.exe / ffprobe.exe / LICENSE.txt 放入 assets\ffmpeg\
+# 1) 需要 .NET 8 运行时 + Windows App SDK（构建期由 NuGet 提供）
+#    ffmpeg 已作为 Brotli 压缩的嵌入资源随仓库提供（assets\ffmpeg\*.br），
+#    若需更新版本，按 docs\BUILD.md 重新生成。
 
 # 2) 构建
 dotnet build FormaToys.slnx -c Debug
@@ -42,10 +50,10 @@ $exe = ".\src\FormaToys.App\bin\Debug\net8.0-windows10.0.19041.0\win-x64\FormaTo
 & $exe .\clip.mp4 .\song.mp3 .\pic.png
 ```
 
-发布便携版（整个目录复制即可运行）：
+打包发布物（便携 zip + 单文件 exe）：
 
 ```powershell
-pwsh -NoProfile -File tools\publish.ps1        # 输出 artifacts\dist
+pwsh -NoProfile -File tools\package-release.ps1     # 输出 artifacts\release
 ```
 
 ## 使用方法
@@ -81,16 +89,19 @@ FormaToys/
 ├─ FormaToys.slnx                 # SDK 10 的解决方案格式
 ├─ global.json                    # 锁定 .NET SDK 10.0.403
 ├─ Directory.Build.props          # 公共属性（LangVersion 12 / 版本号）
-├─ LICENSE  LICENSE.txt           # GPL-3.0 全文
-├─ assets/ffmpeg/                 # 内嵌 ffmpeg（不入库，见 docs/BUILD.md）
-│  ├─ ffmpeg.exe  ffprobe.exe  LICENSE.txt
+├─ LICENSE                         # GPL-3.0 全文（程序本体与内嵌 ffmpeg 同一许可证）
+├─ assets/ffmpeg/                  # 内嵌 ffmpeg 资源（*.br 入库，原始 .exe 不入库）
+│  ├─ ffmpeg.exe.br  ffprobe.exe.br   # Brotli 压缩的 GPL 构建，编译期嵌入 FormaToys.Core.dll
+│  ├─ ffmpeg-version.txt              # 版本串，供运行期日志与缓存目录使用
+│  └─ LICENSE.txt                     # ffmpeg 的 GPL 全文
 ├─ src/
 │  ├─ FormaToys.Core/             # 与 UI 无关的内核，可被 CLI / 测试复用
 │  │  ├─ Media/                   # MediaKind、QualityLevel、MediaInfo、MediaProbe、FormatCatalog
 │  │  ├─ Conversion/              # ConversionRequest/Result、ConversionProgress、
 │  │  │                           # FfmpegCommandBuilder、OutputPlanner、ProgressParser、
 │  │  │                           # ConversionEngine（16 ms 采样上报进度）
-│  │  ├─ Tooling/                 # ToolPaths（定位 ffmpeg）、StartupCheck（版本/GPL 探测）
+│  │  ├─ Tooling/                 # ToolPaths（定位 ffmpeg）、EmbeddedTools（解压内嵌 ffmpeg）、
+│  │  │                           # StartupCheck（版本/GPL 探测）
 │  │  └─ Settings/                # AppSettings + SettingsStore（JSON 落盘）
 │  └─ FormaToys.App/              # WinUI 3 前端
 │     ├─ App.xaml(.cs)            # 应用入口、未处理异常兜底、命令行文件
@@ -103,6 +114,9 @@ FormaToys/
 │     └─ Assets/app.ico
 ├─ tools/
 │  ├─ FormaToys.Smoke/            # 无界面冒烟测试：生成样本 → 转 14 项 → ffprobe 校验
+│  ├─ FormaToys.Setup/            # 单文件启动器：内嵌载荷，解压到 %LOCALAPPDATA% 后启动
+│  ├─ pack-ffmpeg.ps1             # 把 ffmpeg / ffprobe 压成 Brotli 嵌入资源
+│  ├─ package-release.ps1         # 出便携 zip + 单文件 exe
 │  ├─ publish.ps1  make-icon.ps1
 │  └─ capture.ps1  uia.ps1  verify-v02.ps1   # 截图 / UI 自动化 / 端到端验收
 └─ docs/

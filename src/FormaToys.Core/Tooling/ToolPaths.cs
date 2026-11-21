@@ -9,10 +9,11 @@ public sealed class ToolNotFoundException : Exception
 
 /// <summary>
 /// 定位随包附带的 ffmpeg / ffprobe。优先级：
-/// 1) 程序目录下的 ffmpeg\ 子目录（发布形态）
+/// 1) 程序目录下的 ffmpeg\ 子目录（本地开发 / 手工放盘）
 /// 2) 程序目录本身
-/// 3) 环境变量 FORMATOYS_FFMPEG_DIR
-/// 4) PATH
+/// 3) 程序集内嵌的 ffmpeg（首次使用时解压到 %LOCALAPPDATA%）
+/// 4) 环境变量 FORMATOYS_FFMPEG_DIR
+/// 5) PATH
 /// </summary>
 public sealed class ToolPaths
 {
@@ -47,6 +48,12 @@ public sealed class ToolPaths
             {
                 return new ToolPaths(Path.GetFullPath(candidate));
             }
+        }
+
+        var embedded = EmbeddedTools.EnsureExtracted();
+        if (!string.IsNullOrEmpty(embedded) && File.Exists(Path.Combine(embedded, FfmpegFileName)))
+        {
+            return new ToolPaths(embedded);
         }
 
         throw new ToolNotFoundException(
