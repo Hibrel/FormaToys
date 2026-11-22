@@ -79,6 +79,7 @@ public static class EmbeddedTools
                 Extract(FfmpegResource, ffmpeg);
                 Extract(FfprobeResource, ffprobe);
                 File.WriteAllText(Path.Combine(directory, ".complete"), EmbeddedVersion ?? "unknown");
+                CleanupStale(directory);
                 _resolvedDirectory = directory;
                 return directory;
             }
@@ -101,6 +102,34 @@ public static class EmbeddedTools
         var version = typeof(EmbeddedTools).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
         var length = (FindResource(FfmpegResource)?.Length ?? 0) + (FindResource(FfprobeResource)?.Length ?? 0);
         return $"{version}-{length:x}";
+    }
+
+    /// <summary>删掉旧版本留下的解压目录，避免每次升级都多占一份 345 MB（正在使用的目录会因占用而跳过）。</summary>
+    private static void CleanupStale(string keep)
+    {
+        try
+        {
+            foreach (var directory in Directory.GetDirectories(CacheRoot))
+            {
+                if (string.Equals(directory, keep, StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                try
+                {
+                    Directory.Delete(directory, recursive: true);
+                }
+                catch
+                {
+                    // 另一个实例正在用这个目录，下次再说。
+                }
+            }
+        }
+        catch
+        {
+            // 清理是尽力而为，不影响主流程。
+        }
     }
 
     private static void Extract(string resourceName, string destination)

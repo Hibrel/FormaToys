@@ -5,7 +5,7 @@ Win11 独占的原生 ffmpeg 图形前端 —— “格式工厂”的现代重�
 ![FormaToys 主界面](docs/images/01-convert.png)
 
 - **原生**：WinUI 3 + Fluent（NavigationView 侧栏、Mica 背景、圆角卡片、系统强调色），无 WebView、Electron 或任何 web 技术栈。
-- **快**：冷启动到窗口出现实测 376 ms（Release、发布版）；不缓存、不建库、不联网。
+- **快**：冷启动到窗口出现实测约 350 ms（Release、发布版）；不缓存、不建库、不联网。
 - **不臃肿**：5 个 XAML（应用、主窗口、转换页、设置页、关于页）+ 1 个文件行控件，Core 内 20 个源文件。
 - **可用**：内嵌 GPL 版 ffmpeg（`ffmpeg.exe` + `ffprobe.exe`），13 种目标格式，真实进度（16 ms 采样）、可取消、失败给出原因。
 
@@ -71,7 +71,7 @@ pwsh -NoProfile -File tools\package-release.ps1     # 输出 artifacts\release
 
 单个文件失败不影响其他任务：该行状态变为“失败”并显示 ffmpeg 的具体原因（悬停查看完整信息），左侧状态条转红。
 
-## 当前功能（v0.4.0）
+## 当前功能（v0.4.1）
 
 - **内嵌 ffmpeg**：ffmpeg / ffprobe 以 Brotli 压缩的嵌入资源随程序集分发，首次运行解压到 `%LOCALAPPDATA%\FormaToys\tools\`，无需另装。
 - **单文件发布**：`FormaToys-<版本>-win-x64.exe` 双击即用；另有便携 zip。
@@ -145,8 +145,8 @@ dotnet run --project tools\FormaToys.Smoke\FormaToys.Smoke.csproj -c Release
 | 单文件启动器 / 便携 zip | 148.8 MB / 148.7 MB |
 | 安装后占用（`%LOCALAPPDATA%\FormaToys`，含解压出的 ffmpeg） | 564 MB |
 | 首次运行（解压应用与 ffmpeg） | 约 10–25 s，仅一次 |
-| 之后冷启动到窗口出现 | 412 / 385 / 404 ms（三次实测） |
-| 空态工作集 / 私有内存 | 145 MB / 100 MB |
+| 之后冷启动到窗口出现 | 414 / 356 / 336 ms（0.4.1 三次实测） |
+| 空态工作集 / 私有内存 | 139 MB / 98 MB |
 
 后续将改用裁剪过的 ffmpeg 构建（仅保留常用编解码器），把分发体积压到 100 MB 以内。
 
